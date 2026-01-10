@@ -1,0 +1,44 @@
+#include <stdlib.h>
+#include <pthread.h>
+
+#include "global.h"
+#include "util.h"
+
+#include "emulator/rv32izicsr.h"
+#include "emulator/mmio/tty.h"
+
+static void load_bin_file(const char *filename, void *dest, size_t dest_size) {
+    FILE *fptr = fopen(filename, "r");
+    if (!fptr) {
+        app_abort("load_bin_file()", "Unable to obtain file handle")
+    }
+
+    fseek(fptr, 0, SEEK_END);
+    rewind(fptr);
+    fread(dest, 1, dest_size - 1, fptr);
+    fclose(fptr);
+}
+
+struct RV32IZicsr_State state;
+uint8_t *image = NULL;
+
+int main(int argc, char **argv) {
+    if (argc <= 1) {
+        quick_abort("Usage: cm2-riscv-emulator <Filepath to initial .bin> <Filepath to tilegpu .bmp>")
+    }
+
+    image = scalloc(1, RV32IZicsr_RAM_SIZE);
+
+    /* Init RV32I */
+    load_bin_file(argv[1], image, RV32IZicsr_RAM_SIZE);
+    RV32IZicsr_InitState(&state);
+
+    /* Init MMIO Devices */
+    /* Init TTY */
+    Tty_Init();
+
+    while (1) {
+        Tty_Tick();
+        RV32IZicsr_Step(&state, image);
+    }
+}
