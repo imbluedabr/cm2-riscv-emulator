@@ -1,8 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include <time.h>
-#include <stdlib.h>
 
+#include "../../util.h"
 #include "mmio_map.h"
 
 bool Rng_OffsetInteraction(uint32_t offset) {
@@ -13,8 +12,7 @@ bool Rng_OffsetInteraction(uint32_t offset) {
 uint32_t Rng_ByteLoad(uint32_t offset) {
     switch (offset) {
         case RANDOM_BYTE:
-            srand(time(NULL));
-            return rand();
+            return random_int(0, 255);
     }
     return 0;
 }

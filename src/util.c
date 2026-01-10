@@ -24,3 +24,8 @@ void *scalloc(size_t nmemb, size_t size) {
         app_abort("scalloc()", "Failed to allocate memory")
     return alloc;
 }
+
+int random_int(int min, int max) {
+    srand(time(NULL));
+    return min + rand() % (max + 1  - min);
+}
