@@ -72,8 +72,6 @@ void Tty_ByteStore(uint32_t offset, uint32_t value) {
             draw();
             break;
         case TTY_CLEAR:
-            for (int i = 0; i < 256; i++)
-                mvaddch((i >> 5) & 0x07, (i & 0x1f), ' ');
-            refresh();
+            clear();
     }
 }
