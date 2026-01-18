@@ -44,8 +44,8 @@ static void draw(uint8_t controls) {
     BeginDrawing();
     
     if (controls == TILEGPU_DRAW) {
-        for (int i = 0; i < SCREEN_Y_SIZE; i++) {
-            for (int j = 0; i < SCREEN_X_SIZE; j++) {
+        for (int i = 0; i < SCREEN_Y_SIZE - 1; i++) {
+            for (int j = 0; j < SCREEN_X_SIZE - 1; j++) {
                 Rectangle sourceTile = { framebuffer[i][j] * 8, ((framebuffer[i][j]) >> 5) * 8, (float)8, (float)8 };
                 Rectangle dest = {0.0f, 0.0f, (float)tilesheet.width/SCALE, (float)tilesheet.height/SCALE};
                 Vector2 origin = {-j * 64, -i * 64};
