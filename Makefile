@@ -19,7 +19,8 @@ OUTPUT = $(BUILD)/cm2-riscv-emulator
 OUTPUT_ARGS ?= emulator-bin/minesweeper.bin emulator-tilesheet/minesweeper.bmp
 
 CSRCS = $(shell find $(ROOT)/src -name '*.c')
-OBJS = $(patsubst %.c,$(BUILD)/%.o,$(CSRCS))
+RELCSRCS = $(patsubst $(ROOT)/%,%,$(CSRCS))
+OBJS = $(patsubst %.c,$(BUILD)/%.o,$(RELCSRCS))
 
 all: clean compile
 
