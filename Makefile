@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -g -Wall -Wextra -Werror -lncurses -lraylib -fsanitize=address \
 	-Wno-error=unused-variable -Wno-error=unused-parameter -Wno-error=parentheses
 
-ROOT ?= .
+ROOT ?= $(PWD)
 BUILD = $(ROOT)/build
 OUTPUT = $(BUILD)/cm2-riscv-emulator
 OUTPUT_ARGS ?= emulator-bin/minesweeper.bin emulator-tilesheet/minesweeper.bmp
