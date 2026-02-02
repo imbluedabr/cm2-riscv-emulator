@@ -6,7 +6,11 @@
 
 #include "emulator/rv32izicsr.h"
 #include "emulator/mmio/tty.h"
+
+#ifdef RAYLIB
 #include "emulator/mmio/tilegpu.h"
+#endif
+
 #include "emulator/mmio/disk.h"
 
 static void load_bin_file(const char *filename, void *dest, size_t dest_size) {
@@ -39,11 +43,16 @@ int main(int argc, char **argv) {
     Tty_Init();
 
     /* Init TileGPU and Disk */
+    #ifdef RAYLIB
     if (argc == 4) {
         TileGpu_Init(argv[2]);
         Disk_LoadBin(argv[3]);
     } else if (argc == 3)
         Disk_LoadBin(argv[2]);
+    #else
+    if (argc == 3)
+        Disk_LoadBin(argv[2]);
+    #endif
 
     while (1) {
         Tty_Tick();
