@@ -1,3 +1,6 @@
+//dont compile if raylib is not defined
+#ifdef RAYLIB
+
 #include <raylib.h>
 #include <string.h>
 #include <stdint.h>
@@ -81,3 +84,5 @@ void TileGpu_HalfStore(uint32_t offset, uint32_t value) {
         case TILEGPU_FX_IMM: tilegpu_fx_imm = value; break;
     }
 }
+
+#endif
