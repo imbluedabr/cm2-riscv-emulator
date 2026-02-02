@@ -2,14 +2,15 @@ CC = gcc
 CFLAGS = -g -Wall -Wextra -Werror -lncurses -lraylib -fsanitize=address \
 	-Wno-error=unused-variable -Wno-error=unused-parameter -Wno-error=parentheses
 
-BUILD = build
+ROOT ?= .
+BUILD = $(ROOT)/build
 OUTPUT = $(BUILD)/cm2-riscv-emulator
-OUTPUT_ARGS = emulator-bin/minesweeper.bin emulator-tilesheet/minesweeper.bmp
+OUTPUT_ARGS ?= emulator-bin/minesweeper.bin emulator-tilesheet/minesweeper.bmp
 
-CSRCS = $(shell find src -name '*.c')
+CSRCS = $(shell find $(ROOT)/src -name '*.c')
 OBJS = $(patsubst %.c,$(BUILD)/%.o,$(CSRCS))
 
-all: clean compile run
+all: clean compile
 
 force:
 
