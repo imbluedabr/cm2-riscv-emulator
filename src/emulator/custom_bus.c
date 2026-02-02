@@ -49,10 +49,12 @@ void External_RV32IZicsr_StoreHandlerU8(uint8_t *image, uint32_t offset, uint32_
     }
     if (Disk_OffsetInteraction(offset)) {
         return Disk_ByteStore(offset, value);
-    }
+    } //dang it sucks i have to patch this code with conditional compilation
+#ifdef RAYLIB
     if (TileGpu_OffsetInteraction(offset)) {
         return TileGpu_ByteStore(offset, value);
     }
+#endif
     (*(uint8_t *)(image + (offset & RV32IZicsr_RAM_MASK)) = value);
 }
 
@@ -60,9 +62,11 @@ void External_RV32IZicsr_StoreHandlerU16(uint8_t *image, uint32_t offset, uint32
     if (Disk_OffsetInteraction(offset)) {
         return Disk_HalfStore(offset, value);
     }
+#ifdef RAYLIB
     if (TileGpu_OffsetInteraction(offset)) {
         return TileGpu_HalfStore(offset, value);
     }
+#endif
     (*(uint16_t *)(image + (offset & RV32IZicsr_RAM_MASK)) = value);
 }
 
