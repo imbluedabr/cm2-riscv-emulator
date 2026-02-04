@@ -13,8 +13,8 @@ void console_create_windows(void) {
     noecho();
     nodelay(stdscr, TRUE);
 
-    tty_window = newwin(8, 32, 0, 0);
-    dbg_console_window = newwin(512, 512, 0, 32);
+    tty_window = newwin(8 + 1, 32 + 1, 0, 0);
+    dbg_console_window = newwin(512, 512, 0, 32 + 1);
     
     current_focused_window = FOCUSED_WINDOW_TTY;
 }

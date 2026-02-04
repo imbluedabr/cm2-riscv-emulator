@@ -18,7 +18,7 @@ static uint8_t user_ascii;
 static uint8_t user_ready;
 
 static void draw(void) {
-    wmove(tty_window, ((tty_loc >> 5) & 0x07) + 1, (tty_loc & 0x1f));
+    wmove(tty_window, ((tty_loc >> 5) & 0x07) + 1, (tty_loc & 0x1f) + 1);
     waddch(tty_window, tty_char);
 }
 
@@ -63,6 +63,6 @@ void Tty_ByteStore(uint32_t offset, uint32_t value) {
             draw();
             break;
         case TTY_CLEAR:
-            clear();
+            wclear(tty_window);
     }
 }
