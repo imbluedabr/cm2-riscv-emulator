@@ -16,7 +16,7 @@ void breakpoint_tick(void) {
     if (!canrun) return;
     for (size_t i = 0; i < breakpoints_size; i++) {
         if (state.pc > breakpoints[i]) {
-            canrun = false;
+            state.running = false;
             debug_console_puts("Breakpoint hit");
         }
     }
@@ -34,5 +34,5 @@ void breakpoint_pop_cmd(void) {
 }
 
 void break_continue_cmd(void) {
-    canrun = true;
+    state.running = true;
 }

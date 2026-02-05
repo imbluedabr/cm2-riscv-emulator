@@ -33,7 +33,7 @@
 struct RV32IZicsr_State {
    uint32_t regs[32];
    uint32_t pc;
-
+   bool running;
    uint32_t csrs[4096];
 };
 

@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
         Disk_LoadBin(argv[2]);
     #endif
 
-    while (1) {
+    while (state.running) {
         console_tick();
         debug_console_tick();
         Tty_Tick();
