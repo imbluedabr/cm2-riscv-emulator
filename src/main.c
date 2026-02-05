@@ -4,8 +4,8 @@
 #include "global.h"
 #include "util.h"
 
-#include "console.h"
-#include "debug.h"
+#include "console/console.h"
+#include "console/debug.h"
 
 #include "emulator/rv32izicsr.h"
 #include "emulator/mmio/tty.h"

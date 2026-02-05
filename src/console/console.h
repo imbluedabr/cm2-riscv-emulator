@@ -15,4 +15,4 @@ void console_create_windows(void);
 void console_tick(void);
 int console_window_kbhit(enum focused_window window);
 int console_window_getch(enum focused_window window);
-const char *console_window_getstr(enum focused_window focused_window);
+char *console_window_getstr(enum focused_window focused_window);

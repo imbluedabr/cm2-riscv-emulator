@@ -70,7 +70,7 @@ int console_window_getch(enum focused_window window) {
     return ERR;
 }
 
-const char *console_window_getstr(enum focused_window window) {
+char *console_window_getstr(enum focused_window window) {
     if (current_focused_window != window) return NULL;
 
     static char buf[1024];

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <stddef.h>
 #include <time.h>
 
@@ -28,4 +29,10 @@ void *scalloc(size_t nmemb, size_t size) {
 int random_int(int min, int max) {
     srand(time(NULL));
     return min + rand() % (max + 1  - min);
+}
+
+unsigned long str_literal_to_ul(const char *s) {
+    if (!strncmp(s, "0x", 2)) return strtoul(s, NULL, 16);
+    if (!strncmp(s, "0b", 2)) return strtoul(s, NULL, 2);
+    return strtoul(s, NULL, 10);
 }
