@@ -20,6 +20,7 @@ static uint8_t user_ready;
 static void draw(void) {
     wmove(tty_window, ((tty_loc >> 5) & 0x07) + 1, (tty_loc & 0x1f) + 1);
     waddch(tty_window, tty_char);
+    tty_window_dirty = true;
 }
 
 void Tty_Tick(void) {
