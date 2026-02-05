@@ -1,3 +1,4 @@
+#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -31,6 +32,13 @@ static void load_bin_file(const char *filename, void *dest, size_t dest_size) {
 struct RV32IZicsr_State state;
 uint8_t *image = NULL;
 
+void *cpu_tick(void *args) {
+    while (1) {
+        Tty_Tick();
+        RV32IZicsr_Step(&state, image);
+    }
+}
+
 int main(int argc, char **argv) {
     if (argc <= 1) {
         quick_abort("Usage: cm2-riscv-emulator <Filepath to initial .bin> <Filepath to tilegpu .bmp> <Filepath to disk .bin image>")
@@ -60,11 +68,11 @@ int main(int argc, char **argv) {
         Disk_LoadBin(argv[2]);
     #endif
 
+    pthread_t cpu_thread;
+    pthread_create(&cpu_thread, NULL, cpu_tick, NULL);
+
     while (1) {
         console_tick();
         debug_console_tick();
-
-        Tty_Tick();
-        RV32IZicsr_Step(&state, image);
     }
 }
