@@ -4,6 +4,7 @@
 
 void RV32IZicsr_InitState(struct RV32IZicsr_State *state) {
    memset(state, 0, sizeof(*state));
+   state->running = true;
 }
 
 #define REG(id) (state->regs[id])

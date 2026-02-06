@@ -61,11 +61,12 @@ int main(int argc, char **argv) {
         Disk_LoadBin(argv[2]);
     #endif
 
-    while (state.running) {
+    while (1) {
         console_tick();
         debug_console_tick();
         Tty_Tick();
-        RV32IZicsr_Step(&state, image);
-
+        if (state.running) {
+            RV32IZicsr_Step(&state, image);
+        }
     }
 }
