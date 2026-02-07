@@ -41,11 +41,13 @@ void handle_command(char *cmd) {
     so settle with this
 */
 static void registers_window_tick(void) {
+    char buf[128];
     for (unsigned int i = 0; i < sizeof(state.regs)/sizeof(state.regs[0]); i++) {
-        char buf[128];
         snprintf(buf, sizeof(buf), "x%d\t0x%08x", i, state.regs[i]);
         window_puts("registers", buf);
     }
+    snprintf(buf, sizeof(buf), "pc\t0x%08x", state.pc);
+    window_puts("registers", buf);
     find_window("registers")->ch_y = 1;
 }
 
