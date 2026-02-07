@@ -36,7 +36,22 @@ void handle_command(char *cmd) {
     }
 }
 
+/*
+    Making a new file for the registers window is overkill,
+    so settle with this
+*/
+static void registers_window_tick(void) {
+    for (unsigned int i = 0; i < sizeof(state.regs)/sizeof(state.regs[0]); i++) {
+        char buf[128];
+        snprintf(buf, sizeof(buf), "x%d\t0x%08x", i, state.regs[i]);
+        window_puts("registers", buf);
+    }
+    find_window("registers")->ch_y = 1;
+}
+
 void debug_console_tick(void) {
+    registers_window_tick();
+
     static char buf[CMD_SIZE];
     static int i = 0;
 

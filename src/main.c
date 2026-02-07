@@ -31,7 +31,7 @@ static void load_bin_file(const char *filename, void *dest, size_t dest_size) {
 
 struct RV32IZicsr_State state;
 bool cpu_running = true;
-int cpu_speed = 10000;
+int cpu_speed = 10000; // the default speed of taurus is 5 ?
 uint8_t *image = NULL;
 
 void cpu_step(void) {
