@@ -76,6 +76,14 @@ void debug_console_tick(void) {
             window_putc("debug", ch);
             handle_command(buf);
         }
+        else if (ch == 127 || ch == 8) {
+            if (i != 0) {
+                buf[--i] = '\0';
+                find_window("debug")->ch_x--;
+                window_putc("debug", ' ');
+                find_window("debug")->ch_x--;
+            }
+        }
         else {
             buf[i++] = ch;
             window_putc("debug", ch);

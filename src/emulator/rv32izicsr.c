@@ -122,8 +122,10 @@ void RV32IZicsr_Step(struct RV32IZicsr_State *state, uint8_t *image) {
                REG(rd) = rs1val << (opcode == 0x13 ? shamt : s2);
             else if (funct3 == 0x2) // SLT
                REG(rd) = (int32_t)rs1val < (int32_t)s2;
-            else if (funct3 == 0x3)  // SLTU
+            else if (funct3 == 0x3) // SLTU
                REG(rd) = rs1val < s2;
+            else if (funct3 == 0x4)  // XORI
+               REG(rd) = rs1val ^ s2;
             else if (funct3 == 0x5 && !funct7) // SRL
                REG(rd) = rs1val >> (opcode == 0x13 ? shamt : s2);
             else if (funct3 == 0x5 && funct7) // SRA
