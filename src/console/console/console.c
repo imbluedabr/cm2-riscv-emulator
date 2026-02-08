@@ -16,6 +16,7 @@ void console_create_windows(void) {
     create_window("tty", 8 + 2, 32 + 2, 0, 0);
     create_window("debug", 32, 32, 0, 32 + 2);
     create_window("registers", 33 + 2, 17 + 2, 0, 64 + 2);
+    create_window("favmem", 8 + 2, 32 + 2, 8 + 2, 0);
     
     current_focused_window = FOCUSED_WINDOW_TTY;
 }
@@ -38,6 +39,7 @@ static void console_process_char(void) {
 
 void console_tick(void) {
     find_window("registers")->dirty = true;
+    find_window("favmem")->dirty = true;
     update_windows();
     
     ch = getch();

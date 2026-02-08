@@ -37,6 +37,8 @@ struct RV32IZicsr_State {
    uint32_t csrs[4096];
 };
 
+extern uint32_t interacted_address;
+
 void RV32IZicsr_InitState(struct RV32IZicsr_State *state);
 void RV32IZicsr_Step(struct RV32IZicsr_State *state, uint8_t *image);
 bool RV32IZicsr_ImageRead(void);

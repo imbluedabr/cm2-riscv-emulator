@@ -14,6 +14,7 @@
 
 #define CMD_SIZE 128
 
+extern uint8_t *image;
 extern struct RV32IZicsr_State state;
 extern int cpu_speed;
 
@@ -51,8 +52,18 @@ static void registers_window_tick(void) {
     find_window("registers")->ch_y = 1;
 }
 
+static void favmem_window_tick(void) {
+    int i = 0;
+    for (int y = 0; y < find_window("favmem")->height; y++) {
+        for (int x = 0; x < find_window("favmem")->width; x++) {
+            mvwaddch(get_window("favmem"), y, x, image[(interacted_address + (i++)) & RV32IZicsr_RAM_MASK]);
+        }        
+    }
+}
+
 void debug_console_tick(void) {
     registers_window_tick();
+    favmem_window_tick();
 
     static char buf[CMD_SIZE];
     static int i = 0;

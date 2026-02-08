@@ -2,6 +2,8 @@
 
 #include "rv32izicsr.h"
 
+uint32_t interacted_address;
+
 void RV32IZicsr_InitState(struct RV32IZicsr_State *state) {
    memset(state, 0, sizeof(*state));
 }
@@ -69,6 +71,7 @@ void RV32IZicsr_Step(struct RV32IZicsr_State *state, uint8_t *image) {
          break;
       case 0x03: { // Load
          uint32_t addr = rs1val + i_imm;
+         interacted_address = addr;
          if (rd) {
             switch (funct3) {
                case 0: 
@@ -91,6 +94,7 @@ void RV32IZicsr_Step(struct RV32IZicsr_State *state, uint8_t *image) {
       }
       case 0x23: { // Store
          uint32_t addr = rs1val + s_imm;
+         interacted_address = addr;
          switch (funct3) {
             case 0: RV32IZicsr_StoreU8(image, addr, rs2val); break;
             case 1: 
