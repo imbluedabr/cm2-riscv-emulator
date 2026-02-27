@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "../../util.h"
+
 #include "arch.h"
 #include "rv32izicsr.h"
 
@@ -21,8 +23,10 @@ cpu_t taurus = {
     .set_pc = taurus_set_pc,
     .get_ir = taurus_get_ir,
     .get_mar = taurus_get_mar,
-    .next_arch_register = taurus_next_arch_register,
+    .read_next_arch_register = taurus_read_next_arch_register,
+    .write_arch_register = taurus_write_arch_register,
     .ram_size = RV32IZicsr_RAM_SIZE,
+    .register_amount = 32,
     .image = NULL,
 };
 
@@ -46,7 +50,7 @@ void *taurus_sys_init(void *args) {
 }
 
 void *taurus_init(void *args) {
-    taurus.state = malloc(sizeof(struct RV32IZicsr_State));
+    taurus.state = smalloc(sizeof(struct RV32IZicsr_State));
     RV32IZicsr_InitState(taurus.state);
     taurus.image = args;
     return NULL;
@@ -82,7 +86,7 @@ uint32_t taurus_get_mar(void) {
     return ((struct RV32IZicsr_State *)taurus.state)->mar;
 }
 
-arch_register_t taurus_next_arch_register(void) {
+arch_register_t taurus_read_next_arch_register(void) {
     struct RV32IZicsr_State *state = taurus.state;
 
     static int i = 0;
@@ -98,6 +102,14 @@ arch_register_t taurus_next_arch_register(void) {
     snprintf(buf, sizeof(buf), "x%d", i);
     
     arch_register.name = buf;
-    arch_register.value = state->regs[i++];
+    arch_register.value = state->regs[i];
+    arch_register.id = i;
+    i++;
     return arch_register;
+}
+
+void taurus_write_arch_register(int id, uint32_t val) {
+    struct RV32IZicsr_State *state = taurus.state;
+
+    state->regs[id] = val;
 }

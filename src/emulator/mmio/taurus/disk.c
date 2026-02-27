@@ -31,7 +31,7 @@ uint32_t Disk_ByteLoad(uint32_t offset) {
     return 0;
 }
 
-static void dump_disk_as_file(void) {
+void dump_disk_as_file(void) {
     FILE *fptr = fopen("disk_dump.bin", "wb");
     fseek(fptr, 0, SEEK_SET);
     fwrite(disk, 1, sizeof(disk), fptr);

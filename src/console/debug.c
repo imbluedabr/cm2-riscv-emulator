@@ -48,7 +48,7 @@ void handle_command(char *cmd) {
 static void registers_window_tick(void) {
     char buf[128];
     arch_register_t arch_register;
-    for (; (arch_register = selected_cpu->next_arch_register()).name;) {
+    for (; (arch_register = selected_cpu->read_next_arch_register()).name;) {
         snprintf(buf, sizeof(buf), "%s\t0x%08x", arch_register.name, arch_register.value);
         window_puts("registers", buf);
     }
@@ -61,7 +61,7 @@ static void favmem_window_tick(void) {
     int i = 0;
     for (int y = 0; y < find_window("favmem")->height; y++) {
         for (int x = 0; x < find_window("favmem")->width; x++) {
-            mvwaddch(get_window("favmem"), y, x, selected_cpu->image[(selected_cpu->get_mar() + (i++)) & 0xFFFF]); // ffff won't work on 32 bit
+            mvwaddch(get_window("favmem"), y, x, ((uint8_t *)selected_cpu->image)[(selected_cpu->get_mar() + (i++)) & 0xFFFF]); // ffff won't work on 32 bit
         }
     }
 }

@@ -10,6 +10,7 @@ enum cpu_id {
 
 typedef struct {
     const char *name;
+    int id;
     uint32_t value;
 } arch_register_t;
 
@@ -27,18 +28,20 @@ typedef struct {
     uint32_t (*get_ir)(void);
     uint32_t (*get_mar)(void);
 
-    arch_register_t (*next_arch_register)(void);
-
+    arch_register_t (*read_next_arch_register)(void);
+    void (*write_arch_register)(int id, uint32_t val);
 
     void *state;
 
-    uint8_t *image;
+    void *image;
     size_t ram_size;
+    int register_amount;
 } cpu_t;
 
 extern cpu_t *selected_cpu;
 
 void select_cpu(const char *name);
+void write_named_arch_register(const char *name, uint32_t val);
 uint32_t get_pc(void);
 uint32_t set_pc(uint32_t val);
 uint32_t get_ir(void);

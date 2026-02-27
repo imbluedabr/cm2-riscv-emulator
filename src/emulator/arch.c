@@ -19,11 +19,21 @@ void select_cpu(const char *name) {
     }
 }
 
+void write_named_arch_register(const char *name, uint32_t val) {
+    arch_register_t arch_register;
+    while (1) {
+        arch_register = selected_cpu->read_next_arch_register();
+        if (!arch_register.name) return;
+        if (!strcmp(arch_register.name, name)) {
+            selected_cpu->write_arch_register(arch_register.id, val);
+            break;
+        }
+    }
+}
+
 const char *instruction_to_str(uint32_t ir) {
     switch (selected_cpu->id) {
         default:
         case TAURUS: return rv32i_instruction_to_str(ir);
     }
 }
-
-

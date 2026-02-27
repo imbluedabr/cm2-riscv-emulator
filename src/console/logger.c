@@ -15,4 +15,10 @@ void handle_logger_command(char *cmd) {
     else if (!strcmp(subcommand, "flush")) {
         flush_cpu_logger();
     }
+    else if (!strcmp(subcommand, "save")) {
+        cpu_logger_save_snapshot(strtok(NULL, " "), strtok(NULL, " "));
+    }
+    else if (!strcmp(subcommand, "load")) {
+        cpu_logger_load_snapshot(strtok(NULL, " "), strtok(NULL, " "));
+    }
 }

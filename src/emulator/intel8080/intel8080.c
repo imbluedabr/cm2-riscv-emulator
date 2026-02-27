@@ -74,24 +74,31 @@ void Intel8080_Step(struct Intel8080_State *state, uint8_t *image) {
     ir = Intel8080_LoadU8(image, pc);
     state->ir = ir; // cosmetic
 
+    uint8_t limm = Intel8080_LoadU8(image, pc + 1),
+            himm = Intel8080_LoadU8(image, pc + 2),
+            imm = Intel8080_LoadU16(image, pc + 1);
+
     uint8_t wdest = (ir & 0b00111000) >> 3,
             wsrc = (ir & 0b00000111);
 
     uint8_t wdest_opcode = 0b11000111;
     uint8_t wsrcdest_opcode = 0b11000000;
 
+    // Instructions operating on one register dest
     switch (ir & wdest_opcode) {
-        case 0b11000111: WWREG(wdest, RWREG(wdest)+1); break; // INR
-        case 0b00000101: WWREG(wdest, RWREG(wdest)-1); break; // DCR
+        case 0b00000100: WWREG(wdest, RWREG(wdest)+1); state->pc += 1; break; // INR
+        case 0b00000101: WWREG(wdest, RWREG(wdest)-1); state->pc += 1; break; // DCR
     }
+    // Instructions operating on register dest + src
     switch (ir & wsrcdest_opcode) {
-        case 0b01000000: WWREG(wdest, RWREG(wsrc)); break; // MOV
+        case 0b01000000: WWREG(wdest, RWREG(wsrc)); state->pc += 1; break; // MOV
     }
+    // Basic instructions
     switch (ir) {
-        case 0: state->pc += 1; break;
-        case 0b00111111: state->cy = !state->cy; break; // CMC
-        case 0b00110111: state->cy = 1; break; // STC
-        case 0b00101111: state->a = ~(state->a); break; // CMA
+        case 0: state->pc += 1; break; // NOP
+        case 0b00111111: state->cy = !state->cy; state->pc += 1; break; // CMC
+        case 0b00110111: state->cy = 1; state->pc += 1; break; // STC
+        case 0b00101111: state->a = ~(state->a); state->pc += 1; break; // CMA
         case 0b00100111: { // DAA
             uint8_t correction = 0;
 
@@ -100,7 +107,10 @@ void Intel8080_Step(struct Intel8080_State *state, uint8_t *image) {
             if ((state->a >> 4) > 9 || state->cy)
                 correction |= 0x60;
             state->a = Intel8080_Add(state, state->a, correction);
+            state->pc += 1; 
             break;
         }
+        case 0b11000011: state->pc = imm; break; // JMP
+        default: state->pc += 1; break;
     }   
 }
