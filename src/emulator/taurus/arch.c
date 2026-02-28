@@ -7,7 +7,8 @@
 #include "arch.h"
 #include "rv32izicsr.h"
 
-#include "../mmio/taurus/tty.h"
+#include "../mmio/taurus/mmio_map.h"
+#include "../mmio/shared/tty.h"
 #include "../mmio/taurus/tilegpu.h"
 #include "../mmio/taurus/disk.h"
 #include "../mmio/taurus/spritegpu.h"
@@ -34,7 +35,26 @@ void *taurus_sys_init(void *args) {
     int argc = *(int *)(((void **)args)[0]);
     char **argv = *(char ***)(((void **)args)[1]);
 
-    Tty_Init();
+    CreateTty((struct tty){
+        USER_READY,
+        USER_ASCII,
+        TTY_LOC,
+        TTY_CHAR,
+        TTY_WRITE,
+        TTY_CLEAR,
+        .focused_window = FOCUSED_WINDOW_TTY,
+        .window_name = "tty"        
+    });
+    CreateTty((struct tty){
+        EM_ONLY_TTY2_USER_READY,
+        EM_ONLY_TTY2_USER_ASCII,
+        EM_ONLY_TTY2_LOC,
+        EM_ONLY_TTY2_CHAR,
+        EM_ONLY_TTY2_WRITE,
+        EM_ONLY_TTY2_CLEAR,
+        .window_name = "tty2",
+        .focused_window = FOCUSED_WINDOW_TTY2        
+    });
 
     /* Init TileGPU and Disk */
     #ifdef RAYLIB

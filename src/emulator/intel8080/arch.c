@@ -20,7 +20,7 @@ cpu_t intel8080 = {
     .read_next_arch_register = intel8080_read_next_arch_register,
     .write_arch_register = intel8080_write_arch_register,
     .ram_size = Intel8080_RAM_SIZE,
-    .register_amount = 7,
+    .register_amount = 13,
     .image = NULL,
 };
 
@@ -78,7 +78,12 @@ arch_register_t intel8080_read_next_arch_register(void) {
         case 5: arch_register.name = "l"; arch_register.value = state->l; break;
         case 6: arch_register.name = "a"; arch_register.value = state->a; break;
         case 7: arch_register.name = "sp"; arch_register.value = state->sp; break;
-        default: arch_register.name = NULL; i = 0;
+        case 8: arch_register.name = "zf"; arch_register.value = state->z; break;
+        case 9: arch_register.name = "sf"; arch_register.value = state->s; break;
+        case 10: arch_register.name = "pf"; arch_register.value = state->p; break;
+        case 11: arch_register.name = "cf"; arch_register.value = state->cy; break;
+        case 12: arch_register.name = "acf"; arch_register.value = state->ac; break;
+        default: arch_register.name = NULL; i = 0; return arch_register;
     }
 
     arch_register.id = i;
@@ -98,5 +103,10 @@ void intel8080_write_arch_register(int id, uint32_t val) {
         case 5: state->l = val; break;
         case 6: state->a = val; break;
         case 7: state->sp = val; break;
+        case 9: state->s = val; break;
+        case 8: state->z = val; break;
+        case 10: state->p = val; break;
+        case 11: state->cy = val; break;
+        case 12: state->ac = val; break;
     }
 }

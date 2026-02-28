@@ -1,6 +1,6 @@
 #include "rv32izicsr.h"
 
-#include "../mmio/taurus/tty.h"
+#include "../mmio/shared/tty.h"
 #include "../mmio/taurus/rng.h"
 #include "../mmio/taurus/disk.h"
 #include "../mmio/taurus/tilegpu.h"

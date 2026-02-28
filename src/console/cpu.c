@@ -8,10 +8,6 @@
 
 extern int cpu_speed;
 
-static void cpu_jmp_cmd(char *arg) {
-    selected_cpu->set_pc(str_literal_to_ul(arg));
-}
-
 void handle_cpu_command(char *cmd) {
     strtok(cmd, " ");
     char *subcommand = strtok(NULL, " ");

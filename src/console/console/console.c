@@ -16,7 +16,7 @@ void console_create_windows(void) {
     nodelay(stdscr, TRUE);
 
     create_window("tty", 8 + 2, 32 + 2, 0, 0);
-    create_window("debug", selected_cpu->register_amount, 32, 0, 32 + 2);
+    create_window("debug", 32, 32, 0, 32 + 2);
     create_window("registers", selected_cpu->register_amount + 1 + 2, 17 + 2, 0, 64 + 2);
     create_window("tty2", 8 + 2, 32 + 2, 8 + 2, 0);
     create_window("favmem", 8 + 2, 32 + 2, (8 + 2) * 2, 0);
