@@ -58,10 +58,6 @@ int main(int argc, char **argv) {
     
     load_bin_file(argv[2], image, selected_cpu->ram_size);
 
-    #ifdef RAYLIB
-    Screen_Init();
-    #endif
-
     selected_cpu->init(image);
     selected_cpu->sys_init(&(void *[]){&argc, &argv});
 

@@ -14,7 +14,7 @@ static uint8_t Intel8080_ReadWReg(struct Intel8080_State *state, uint8_t *image,
         case 3: return state->e;
         case 4: return state->h;
         case 5: return state->l;
-        case 6: return Intel8080_LoadU8(image, ((state->h << 8) | state->l));
+        case 6: return Intel8080_LoadU8(image, (state->mar = ((state->h << 8)) | state->l));
         case 7: return state->a;
         default: return 0;
     }
@@ -28,7 +28,7 @@ static void Intel8080_WriteWReg(struct Intel8080_State *state, uint8_t *image, u
         case 3: state->e = val; break;
         case 4: state->h = val; break;
         case 5: state->l = val; break;
-        case 6: Intel8080_StoreU8(image, ((state->h << 8) | state->l), val); break;
+        case 6: Intel8080_StoreU8(image, (state->mar = ((state->h << 8) | state->l)), val); break;
         case 7: state->a = val;
     }
 }
@@ -61,6 +61,8 @@ static void Intel8080_WriteDReg(struct Intel8080_State *state, uint8_t reg, uint
 
 #define RWREG(reg) (Intel8080_ReadWReg(state, image, reg))
 #define WWREG(reg, val) (Intel8080_WriteWReg(state, image, reg, val))
+#define RDREG(reg, sp) (Intel8080_ReadDReg(state, reg, reg))
+#define WDREG(reg, val, sp) (Intel8080_WriteDReg(state, reg, val, sp))
 
 static void Intel8080_Set_SZP(struct Intel8080_State *state, uint8_t x) {
     if (x & 0x80) {
@@ -98,6 +100,8 @@ void Intel8080_Step(struct Intel8080_State *state, uint8_t *image) {
     ir = Intel8080_LoadU8(image, pc);
     state->ir = ir; // cosmetic
 
+    uint32_t mar = state->mar; // cosmetic
+
     uint8_t limm = Intel8080_LoadU8(image, pc + 1),
             himm = Intel8080_LoadU8(image, pc + 2);
     uint16_t imm = Intel8080_LoadU16(image, pc + 1);
@@ -111,8 +115,9 @@ void Intel8080_Step(struct Intel8080_State *state, uint8_t *image) {
     uint8_t tmp;
 
     switch (ir & wdest_opcode) {
-        case 0b00000100: WWREG(wdest, RWREG(wdest)+1); pc += 1; break; // INR
-        case 0b00000101: WWREG(wdest, RWREG(wdest)-1); pc += 1; break; // DCR
+        case 0b00000100: WWREG(wdest, RWREG(wdest)+1); Intel8080_Set_SZP(state, RWREG(wdest)); pc += 1; break; // INR
+        case 0b00000101: WWREG(wdest, RWREG(wdest)-1); Intel8080_Set_SZP(state, RWREG(wdest)); pc += 1; break; // DCR
+        case 0b00000110: WWREG(wdest, limm); pc += 2; break; // MVI
         default:;
     }
 
@@ -142,8 +147,14 @@ void Intel8080_Step(struct Intel8080_State *state, uint8_t *image) {
     uint8_t dsrc_opcode = 0b11001111;
 
     switch (ir & dsrc_opcode) {
-        case 0b11000101: state->sp -= 2; Intel8080_StoreU16(image, state->sp, Intel8080_ReadDReg(state, dsrc, false)); pc += 1; break; // PUSH
-        case 0b11000001: Intel8080_WriteDReg(state, dsrc, Intel8080_LoadU16(image, state->sp), false); state->sp += 2; pc += 1; break; // POP
+        case 0b11000101: mar = (state->sp -= 2); Intel8080_StoreU16(image, state->sp, RDREG(dsrc, false)); pc += 1; break; // PUSH
+        case 0b11000001: Intel8080_WriteDReg(state, dsrc, Intel8080_LoadU16(image, state->sp), false); mar = (state->sp += 2); pc += 1; break; // POP
+        default:;
+    }
+
+    uint8_t rst_vector = 0b00111000;
+    switch (ir & rst_vector) {
+        case 0b11000111: state->sp -= 2; Intel8080_StoreU16(image, state->sp, pc + 1); pc = ir & rst_vector; break; // RST
         default:;
     }
 
@@ -162,17 +173,49 @@ void Intel8080_Step(struct Intel8080_State *state, uint8_t *image) {
             pc += 1;
             break;
         }
-        case 0b00000010: Intel8080_StoreU8(image, (state->b << 8) | state->c, state->a); pc += 1; break; // STAX B
-        case 0b00010010: Intel8080_StoreU8(image, (state->d << 8) | state->e, state->a); pc += 1; break; // STAX D
-        case 0b00001010: state->a = Intel8080_LoadU8(image, (state->b << 8) | state->c); pc += 1; break; // LDAX B
-        case 0b00011010: state->a = Intel8080_LoadU8(image, (state->d << 8) | state->e); pc += 1; break; // LDAX D
+        case 0b00000010: Intel8080_StoreU8(image, (mar = (state->b << 8) | state->c), state->a); pc += 1; break; // STAX B
+        case 0b00010010: Intel8080_StoreU8(image, (mar = (state->d << 8) | state->e), state->a); pc += 1; break; // STAX D
+        case 0b00001010: state->a = Intel8080_LoadU8(image, (mar = (state->b << 8) | state->c)); pc += 1; break; // LDAX B
+        case 0b00011010: state->a = Intel8080_LoadU8(image, (mar = (state->d << 8) | state->e)); pc += 1; break; // LDAX D
         case 0b00000111: state->cy = ((state->a & 0x80) >> 7); state->a = ((state->a << 1) | (state->a & 0x80) >> 7); pc += 1; break; // RLC
         case 0b00001111: state->cy = state->a & 0x1; state->a = ((state->a >> 1) | (state->a & 0x1) << 7); pc += 1; break; // RRC
         case 0b00010111: tmp = state->a; state->a = (state->a << 1 | state->cy); state->cy = ((tmp & 0x80) >> 7); pc += 1; break; // RAL
         case 0b00011111: tmp = state->a; state->a = (state->a >> 1 | state->cy << 7); state->cy = tmp & 0x1; pc += 1; break; // RAR
+        case 0b00110010: Intel8080_StoreU8(image, (mar = imm), state->a); pc += 3; break; // STA
+        case 0b00111010: state->a = Intel8080_LoadU8(image, (mar = imm)); pc += 3; break; // LDA
+        case 0b00100010: Intel8080_StoreU16(image, (mar = imm), (state->h << 8) | state->l); break; pc += 3; break; // SHLD
+        case 0b00101010: state->h = (Intel8080_LoadU16(image, (mar = imm)) << 8); state->l = Intel8080_LoadU16(image, (mar = imm)); pc += 3; break; // LHLD
+        case 0b11101001: pc = ((state->h << 8) | state->l); break; // PCHL
         case 0b11000011: pc = imm; break; // JMP
+        case 0b11011010: if (state->c) pc = imm; else pc += 1; break; // JC
+        case 0b11010010: if (!state->c) pc = imm; else pc += 1; break; // JNC
+        case 0b11001010: if (state->z) pc = imm; else pc += 1; break; // JZ
+        case 0b11000010: if (!state->z) pc = imm; else pc += 1; break; // JNZ
+        case 0b11111010: if (state->s) pc = imm; else pc += 1; break; // JM
+        case 0b11110010: if (!state->s) pc = imm; else pc += 1; break; // JP
+        case 0b11101010: if (state->p) pc = imm; else pc += 1; break; // JPE
+        case 0b11100010: if (!state->p) pc = imm; else pc += 1; break; // JPO
+        case 0b11001101: state->sp -= 2; Intel8080_StoreU16(image, state->sp, pc+3); pc = imm; break; // CALL
+        case 0b11011100: if (state->c) { state->sp -= 2; Intel8080_StoreU16(image, state->sp, pc+3); pc = imm; } else pc += 3; break; // CC
+        case 0b11010100: if (!state->c) { state->sp -= 2; Intel8080_StoreU16(image, state->sp, pc+3); pc = imm; } else pc += 3; break; // CNC
+        case 0b11001100: if (state->z) { state->sp -= 2; Intel8080_StoreU16(image, state->sp, pc+3); pc = imm; } else pc += 3; break; // CZ
+        case 0b11000100: if (!state->z) { state->sp -= 2; Intel8080_StoreU16(image, state->sp, pc+3); pc = imm; } else pc += 3; break; // CNZ
+        case 0b11111100: if (state->s) { state->sp -= 2; Intel8080_StoreU16(image, state->sp, pc+3); pc = imm; } else pc += 3; break; // CM
+        case 0b11110100: if (!state->s) { state->sp -= 2; Intel8080_StoreU16(image, state->sp, pc+3); pc = imm; } else pc += 3; break; // CP
+        case 0b11101100: if (state->p) { state->sp -= 2; Intel8080_StoreU16(image, state->sp, pc+3); pc = imm; } else pc += 3; break; // CPE
+        case 0b11100100: if (!state->p) { state->sp -= 2; Intel8080_StoreU16(image, state->sp, pc+3); pc = imm; } else pc += 3; break; // CPO
+        case 0b11001001: pc = Intel8080_LoadU16(image, state->sp); state->sp += 2; break; // RET
+        case 0b11011000: if (state->c) { pc = Intel8080_LoadU16(image, state->sp); state->sp += 2; } else pc += 1; break; // RC
+        case 0b11010000: if (!state->c) { pc = Intel8080_LoadU16(image, state->sp); state->sp += 2; } else pc += 1; break; // RNC
+        case 0b11001000: if (state->z) { pc = Intel8080_LoadU16(image, state->sp); state->sp += 2; } else pc += 1; break; // RZ
+        case 0b11000000: if (!state->z) { pc = Intel8080_LoadU16(image, state->sp); state->sp += 2; } else pc += 1; break; // RNZ
+        case 0b11111000: if (state->s) { pc = Intel8080_LoadU16(image, state->sp); state->sp += 2; } else pc += 1; break; // RM
+        case 0b11110000: if (!state->s) { pc = Intel8080_LoadU16(image, state->sp); state->sp += 2; } else pc += 1; break; // RP
+        case 0b11101000: if (state->p) { pc = Intel8080_LoadU16(image, state->sp); state->sp += 2; } else pc += 1; break; // RPE
+        case 0b11100000: if (!state->p) { pc = Intel8080_LoadU16(image, state->sp); state->sp += 2; } else pc += 1; break; // RPO
         default:;
     }
 
+    state->mar = mar; // cosmetic
     state->pc = pc;
 }

@@ -13,6 +13,8 @@
 #include "../mmio/taurus/disk.h"
 #include "../mmio/taurus/spritegpu.h"
 
+#include "../screen.h"
+
 cpu_t taurus = {
     .id = TAURUS,
     .name = "taurus",
@@ -58,6 +60,7 @@ void *taurus_sys_init(void *args) {
 
     /* Init TileGPU and Disk */
     #ifdef RAYLIB
+    Screen_Init();
     if (argc == 6) {
         TileGpu_Init(argv[3]);
         Disk_LoadBin(argv[4]);

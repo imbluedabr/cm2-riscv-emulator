@@ -19,15 +19,15 @@
    #define RV32IZicsr_StoreU16(image, offset, value) (*(uint16_t *)((image) + ((offset) & RV32IZicsr_RAM_MASK)) = (value))
    #define RV32IZicsr_StoreU32(image, offset, value) (*(uint32_t *)((image) + ((offset) & RV32IZicsr_RAM_MASK)) = (value))
 #else
-   #define RV32IZicsr_LoadU8(image, offset) External_RV32IZicsr_LoadHandlerU8(image, offset);
-   #define RV32IZicsr_LoadS8(image, offset) External_RV32IZicsr_LoadHandlerS8(image, offset);
-   #define RV32IZicsr_LoadU16(image, offset) External_RV32IZicsr_LoadHandlerU16(image, offset);
-   #define RV32IZicsr_LoadS16(image, offset) External_RV32IZicsr_LoadHandlerU16(image, offset)
-   #define RV32IZicsr_LoadU32(image, offset) External_RV32IZicsr_LoadHandlerU32(image, offset);
+   #define RV32IZicsr_LoadU8(image, offset) (External_RV32IZicsr_LoadHandlerU8(image, offset))
+   #define RV32IZicsr_LoadS8(image, offset) (External_RV32IZicsr_LoadHandlerS8(image, offset))
+   #define RV32IZicsr_LoadU16(image, offset) (External_RV32IZicsr_LoadHandlerU16(image, offset))
+   #define RV32IZicsr_LoadS16(image, offset) (External_RV32IZicsr_LoadHandlerU16(image, offset))
+   #define RV32IZicsr_LoadU32(image, offset) (External_RV32IZicsr_LoadHandlerU32(image, offset))
 
-   #define RV32IZicsr_StoreU8(image, offset, value) External_RV32IZicsr_StoreHandlerU8(image, offset, value)
-   #define RV32IZicsr_StoreU16(image, offset, value) External_RV32IZicsr_StoreHandlerU16(image, offset, value)
-   #define RV32IZicsr_StoreU32(image, offset, value) External_RV32IZicsr_StoreHandlerU32(image, offset, value)
+   #define RV32IZicsr_StoreU8(image, offset, value) (External_RV32IZicsr_StoreHandlerU8(image, offset, value))
+   #define RV32IZicsr_StoreU16(image, offset, value) (External_RV32IZicsr_StoreHandlerU16(image, offset, value))
+   #define RV32IZicsr_StoreU32(image, offset, value) (External_RV32IZicsr_StoreHandlerU32(image, offset, value))
 #endif
 
 struct RV32IZicsr_State {

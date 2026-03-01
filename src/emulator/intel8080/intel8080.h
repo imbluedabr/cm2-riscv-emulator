@@ -6,7 +6,7 @@
 /* Configuration */
 #define Intel8080_RAM_SIZE 65536
 #define Intel8080_RAM_MASK (Intel8080_RAM_SIZE - 1)
-//#include "custom_bus.h"
+#include "custom_bus.h"
 
 #ifndef Intel8080_CUSTOM_BUS
    #define Intel8080_LoadU8(image, offset) ((uint32_t)*(uint8_t *)((image) + ((offset) & Intel8080_RAM_MASK)))
@@ -15,11 +15,11 @@
    #define Intel8080_StoreU8(image, offset, value) (*(uint8_t *)((image) + ((offset) & Intel8080_RAM_MASK)) = (value))
    #define Intel8080_StoreU16(image, offset, value) (*(uint16_t *)((image) + ((offset) & Intel8080_RAM_MASK)) = (value))
 #else
-   #define Intel8080_LoadU8(image, offset) External_Intel8080_LoadHandlerU8((image), (offset));
-   #define Intel8080_LoadU16(image, offset) External_Intel8080_LoadHandlerU16((image), (offset));
+   #define Intel8080_LoadU8(image, offset) (External_Intel8080_LoadHandlerU8((image), (offset)))
+   #define Intel8080_LoadU16(image, offset) (External_Intel8080_LoadHandlerU16((image), (offset)))
 
-   #define Intel8080_StoreU8(image, offset, value) External_Intel8080_StoreHandlerU8((image), (offset), (value))
-   #define Intel8080_StoreU16(image, offset, value) External_Intel8080_StoreHandlerU16((image), (offset), (value))
+   #define Intel8080_StoreU8(image, offset, value) (External_Intel8080_StoreHandlerU8((image), (offset), (value)))
+   #define Intel8080_StoreU16(image, offset, value) (External_Intel8080_StoreHandlerU16((image), (offset), (value)))
 #endif
 
 struct Intel8080_State {

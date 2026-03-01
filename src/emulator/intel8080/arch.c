@@ -6,6 +6,8 @@
 #include "arch.h"
 #include "intel8080.h"
 
+#include "../mmio/shared/tty.h"
+
 cpu_t intel8080 = {
     .id = INTEL8080,
     .name = "8080",
@@ -27,6 +29,26 @@ cpu_t intel8080 = {
 void *intel8080_sys_init(void *args) {
     int argc = *(int *)(((void **)args)[0]);
     char **argv = *(char ***)(((void **)args)[1]);
+
+    /*  from cm2mon
+        tty_loc     equ 0xffff 
+        tty_char    equ 0xfffe
+        tty_write   equ 0xfffd
+        tty_usr_ch  equ 0xfffc
+        tty_usr_rdy equ 0xfffb
+        tty_cls     equ 0xfffa    
+    */
+
+    CreateTty((struct tty){
+        0xfffb,
+        0Xfffc,
+        0xffff,
+        0xfffe,
+        0xfffd,
+        0xfffa,
+        .window_name = "tty",
+        .focused_window = FOCUSED_WINDOW_TTY
+    });
 
     return NULL;
 }

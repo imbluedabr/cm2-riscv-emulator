@@ -5,10 +5,8 @@
 
 #include "tty.h"
 
-#define TTY_AMOUNT 2
-
 struct tty *ttys = NULL;
-size_t ttys_size;
+int ttys_size;
 
 void CreateTty(struct tty tty) {
     ttys = srealloc(ttys, ++ttys_size * sizeof(struct tty));
@@ -22,7 +20,7 @@ static void draw(struct tty *tty) {
 }
 
 void Tty_Tick(void) {
-    for (int i = 0; i < TTY_AMOUNT; i++) {
+    for (int i = 0; i < ttys_size; i++) {
         if (console_window_kbhit(ttys[i].focused_window)) {
             ttys[i].user_ascii = console_window_getch(ttys[i].focused_window);
             ttys[i].user_ready = true;
@@ -31,7 +29,7 @@ void Tty_Tick(void) {
 }
 
 bool Tty_OffsetInteraction(uint32_t offset) {
-    for (int i = 0; i < TTY_AMOUNT; i++) {
+    for (int i = 0; i < ttys_size; i++) {
         if (offset == ttys[i].user_ready_offset) return true;
         if (offset == ttys[i].user_ascii_offset) return true;
         if (offset == ttys[i].tty_loc_offset) return true;
@@ -43,7 +41,7 @@ bool Tty_OffsetInteraction(uint32_t offset) {
 }
 
 uint32_t Tty_ByteLoad(uint32_t offset) {
-    for (int i = 0; i < TTY_AMOUNT; i++) {
+    for (int i = 0; i < ttys_size; i++) {
         if (offset == ttys[i].user_ready_offset) {
             if (ttys[i].user_ready == false) {
                 return ttys[i].user_ready;
@@ -64,7 +62,7 @@ uint32_t Tty_ByteLoad(uint32_t offset) {
 }
 
 void Tty_ByteStore(uint32_t offset, uint32_t value) {
-    for (int i = 0; i < TTY_AMOUNT; i++) {
+    for (int i = 0; i < ttys_size; i++) {
         if (offset == ttys[i].tty_loc_offset) ttys[i].tty_loc = value;
         else if (offset == ttys[i].tty_char_offset) ttys[i].tty_char = value;
         else if (offset == ttys[i].tty_write_offset) draw(&ttys[i]);
